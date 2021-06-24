@@ -16,10 +16,10 @@ app.listen(4000, () => {
 
 // Connect DB
 const dist =
-  'mongodb+srv://sandraudemy:test123@cluster0-j9nty.mongodb.net/data?retryWrites=true&w=majority'
-const db = 'mongodb://localhost/todo-items'
+  'mongodb+srv://fabezio:C0denCQRT!@cluster0.0r1tc.mongodb.net/todo-items?retryWrites=true&w=majority'
+// const db = 'mongodb://localhost/todo-items'
 mongoose
-  .connect(db, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(dist, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('successfully connected to db'))
   .catch((err) => console.log(err))
 
@@ -59,15 +59,15 @@ router.route('/add').post(function (req, res) {
 
 // update
 router.route('/:id').put(function (req, res) {
-  Todo.findByIdAndUpdate(req.params.id, req.body)
-    .then((todo) => {
-      todo.isCompleted = !todo.isCompleted
-      todo.save()
-      res.status(200).send({ message: `${todo.text} is successfully updated` })
+  Todo.findById(req.params.id, function (err, todo) {
+    if (err) { res.send(err) }
+    todo.text = req.body.text
+    todo.isCompleted = !req.body.isCompleted
+    todo.save(function (err) {
+      if (err) { res.send(err) }
+      res.json({ message: `${todo.text} is successfully updated` })
     })
-    .catch((err) =>
-      res.status(400).send({ error: `error adding document ${err}` })
-    )
+  })
 })
 
 // delete
