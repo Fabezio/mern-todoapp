@@ -19,7 +19,7 @@ const dist =
   'mongodb+srv://fabezio:C0denCQRT!@cluster0.0r1tc.mongodb.net/todo-items?retryWrites=true&w=majority'
 // const db = 'mongodb://localhost/todo-items'
 mongoose
-  .connect(dist, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(dist, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false })
   .then(() => console.log('successfully connected to db'))
   .catch((err) => console.log(err))
 
@@ -31,16 +31,14 @@ const todoSchema = new Schema({
 const Todo = mongoose.model('Todo', todoSchema)
 
 // Routes
-app.use('/todos', router)
+app.use('/todos', cors(), router)
 
 // read
 router.route('/').get(function (_, res) {
   Todo.find(function (err, items) {
-    if (err) {
-      res.send(400).send(`ERROR ${err}`)
-    } else {
-      res.status(200).send(items)
-    }
+    return err
+      ? res.send(400).send(`ERROR ${err}`)
+      : res.status(200).send(items)
   })
 })
 
@@ -60,6 +58,7 @@ router.route('/add').post(function (req, res) {
 // update
 router.route('/:id').put(function (req, res) {
   Todo.findById(req.params.id, function (err, todo) {
+    console.log(req.params.id)
     if (err) { res.send(err) }
     todo.text = req.body.text
     todo.isCompleted = !req.body.isCompleted
